@@ -62,7 +62,8 @@ def dataset_to_csv():
     
 def main():
     
-    #dataset_to_csv()
+    dataset_to_csv()
     dataset_to_json()
+    
 if __name__=="__main__":
     main()
