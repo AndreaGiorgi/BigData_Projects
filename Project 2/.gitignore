@@ -151,3 +151,4 @@ dmypy.json
 *.txt
 *.db
 *.csv
+*.json
