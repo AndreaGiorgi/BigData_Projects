@@ -2,7 +2,6 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-
 def true_false_setter(columns):
     if columns == 'null':
         return 0
@@ -10,7 +9,6 @@ def true_false_setter(columns):
         return 0
     else:
         return 1
-
 
 def users_preprocessing():
 
@@ -67,7 +65,6 @@ def users_preprocessing():
     
     dataset.to_csv('data/clubhouse/user_data.csv', index = False, encoding = 'utf-8')
     
-    
 def clubs_preprocessing():
     
     
@@ -103,12 +100,10 @@ def clubs_preprocessing():
     
     dataset.to_csv('data/clubhouse/club_data.csv', index = False, encoding = 'utf-8')
 
-    
 
 def preprocessing_pipeline():
    users_preprocessing()
    clubs_preprocessing()
-
 
 if __name__ == '__main__':
     preprocessing_pipeline()
