@@ -20,10 +20,10 @@ def dataset_export():
     except Error as e:
         print(e)
 
-def main():
+def loading_pipeline():
     
     dataset_export()  
     
 if __name__=="__main__":
-    main()
+    loading_pipeline()
     

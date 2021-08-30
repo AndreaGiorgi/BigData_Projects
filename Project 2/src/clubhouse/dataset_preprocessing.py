@@ -105,10 +105,10 @@ def clubs_preprocessing():
 
     
 
-def pipeline():
+def preprocessing_pipeline():
    users_preprocessing()
    clubs_preprocessing()
 
 
 if __name__ == '__main__':
-    pipeline()
+    preprocessing_pipeline()
