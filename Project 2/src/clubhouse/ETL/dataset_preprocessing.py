@@ -1,5 +1,6 @@
 import pandas as pd
 import warnings
+import time
 warnings.filterwarnings('ignore')
 
 def true_false_setter(columns):
@@ -67,13 +68,12 @@ def users_preprocessing():
     
 def clubs_preprocessing():
     
-    
     dataset = pd.read_csv("data/clubhouse/club_data.csv")
     print(dataset.info())
     
     # Remove useless columns
     
-    dataset.drop(['photo_url', 'rules', 'description'], axis=1, inplace=True)
+    dataset.drop(['photo_url', 'rules', 'description', 'url'], axis=1, inplace=True)
     
     print(dataset.info())
     print(dataset.head())
@@ -102,8 +102,12 @@ def clubs_preprocessing():
 
 
 def preprocessing_pipeline():
-   users_preprocessing()
-   clubs_preprocessing()
+    
+    start_time = time.time()
+    users_preprocessing()
+    clubs_preprocessing()
+    print("--- Dataset preprocessed in %s seconds ---" % (time.time() - start_time))
+    
 
 if __name__ == '__main__':
     preprocessing_pipeline()
