@@ -1,9 +1,11 @@
-import * as etl from './database_etl'
+var init = require('./database_init');
 
 async function pipeline(){
 
-	etl.user_data_loading()
-	etl.club_data_loading()
+	init.user_data_init()
+	init.club_data_init()
+	init.user_user_edge_init()
+	init.user_club_edge_init()
 }
 
 pipeline()
