@@ -19,8 +19,23 @@ def dataset_export():
         
         users_dataset.to_csv('data/clubhouse/user_data.csv', index = False, encoding = 'utf-8', line_terminator='\n',  quoting=1)
         clubs_dataset.to_csv('data/clubhouse/club_data.csv', index = False, encoding = 'utf-8', line_terminator='\n', quoting=1)
+                
+        with open('data/clubhouse/user_data.csv', encoding = "utf-8") as csvFile:
+            with open('data/clubhouse/user_data.json', 'w+', encoding='utf-8') as jsonf:
+                csvReader = csv.DictReader(csvFile)
+                for row in csvReader:
+                    json.dump(row, jsonf)
+                    jsonf.write('\n')
             
-        print("--- Dataset loaded, saved in CSV format in %s seconds ---" % (time.time() - start_time))
+        
+        with open('data/clubhouse/club_data.csv', encoding = 'utf-8') as csvFile:
+            with open('data/clubhouse/club_data.json', 'w+', encoding='utf-8') as jsonf:
+                csvReader = csv.DictReader(csvFile)
+                for row in csvReader:
+                    json.dump(row, jsonf)
+                    jsonf.write('\n')
+            
+        print("--- Dataset loaded, saved in CSV and JSON format in %s seconds ---" % (time.time() - start_time))
  
         
     except Error as e:

@@ -114,5 +114,3 @@ def preprocessing_pipeline():
 
 if __name__ == '__main__':
     preprocessing_pipeline()
-    
-    ##DA creare nuovo file json che connette le persone e i club
