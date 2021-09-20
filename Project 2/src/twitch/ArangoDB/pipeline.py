@@ -1,4 +1,5 @@
 from database_init import initialization
+from database_task import detection
 import time
 import psutil
 import os
@@ -23,7 +24,8 @@ def track(func):
 
 @track
 def databasePipeline():
-	initialization()
-
+    initialization()
+    detection()
+    
 if __name__ == '__main__':
-    databasePipeline() 
+    databasePipeline()  

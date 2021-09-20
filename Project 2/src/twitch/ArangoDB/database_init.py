@@ -39,4 +39,3 @@ def initialization():
     print("\n-----------Edges Statistics------------\n")
     print(edges.statistics())
     
-    
