@@ -30,6 +30,7 @@ def detection():
     async_db.create_task(
         name='SLPA',
         command= '''
+            var db = require('@arangodb')
             var pregel = require("@arangodb/pregel");
             var param = {maxGSS:100, resultField = "community"};
             var handle = pregel.start("slpa", "TwitchGraph", param);

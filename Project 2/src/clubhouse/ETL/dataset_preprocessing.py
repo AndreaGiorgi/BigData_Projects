@@ -65,10 +65,23 @@ def users_preprocessing():
     print(dataset.info())
     print(dataset.head())
     
+    edges_users_dataset = pd.DataFrame()
+    edges_users_dataset['_from'] = dataset['invited_by_user_profile']
+    edges_users_dataset['_to'] = dataset['user_id']
+    
+    edges_clubs_dataset = pd.DataFrame()
+    edges_clubs_dataset['_from'] = dataset['invited_by_club']
+    edges_users_dataset['_to'] = dataset['user_id']
+    
     dataset.to_csv('data/clubhouse/user_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/user_data_processed.json', orient='records', lines=True)
+    edges_users_dataset.to_json('data/clubhouse/user_edges_processed.json', orient='records', lines=True)
     
-def clubs_preprocessing():
+    return edges_clubs_dataset
+
+
+
+def clubs_preprocessing(edges_clubs_dataset):
     
     dataset = pd.read_csv("data/clubhouse/club_data.csv")
     print(dataset.info())
@@ -100,8 +113,13 @@ def clubs_preprocessing():
     print(dataset.info())
     print(dataset.head())
     
+    merged_dataset = pd.merge(left = dataset, right= edges_clubs_dataset, left_on='club_id', right_on='invited_by')
+    edges_clubs_dataset['_from'] = merged_dataset['club_id']
+    
     dataset.to_csv('data/clubhouse/club_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/club_data_processed.json', orient='records', lines=True)
+    edges_clubs_dataset.to_json('data/clubhouse/club_edges_processed.json', orient='records', lines=True)
+
 
 
 def preprocessing_pipeline():
