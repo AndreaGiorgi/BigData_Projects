@@ -1,9 +1,9 @@
-from arango import ArangoClient, AQLQueryExecuteError, AsyncJobCancelError, AsyncJobClearError
+from arango import ArangoClient
 import time
 
 def detection():
-    client = ArangoClient(hosts = 'http://127.0.0.1:8529')
-    twitch_db = client.db('Twitch', username='root', password = 'bigdata')
+    client = ArangoClient(hosts = 'http://localhost:8000/')
+    twitch_db = client.db('Twitch', username='root', password = '')
     pregel = twitch_db.pregel
     
     # Begin async execution. This returns an instance of AsyncDatabase, a
@@ -27,16 +27,41 @@ def detection():
 		async_mode= True,
 		result_field= 'community'
 	)
+    async_db.create_task(
+        name='SLPA',
+        command= '''
+            var pregel = require("@arangodb/pregel");
+            var param = {maxGSS:100, resultField = "community"};
+            var handle = pregel.start("slpa", "TwitchGraph", param);
+
+            while (!["done", "canceled"].includes(pregel.status(handle).state)) {
+            print("waiting for result");
+            require("internal").wait(0.5); // TODO: make this more clever
+            }
+
+            var status = pregel.status(handle);
+            print(status);
+
+            if (status.state == "done") {
+                print(status); }
+}
+        ''',
+        params={},
+        period=0,
+        task_id='001'
+    )
     
-    slpa_job = async_pregel.job(task_id)
-    time.sleep(50) # Wait time for better SLPA execution, bad processor = bad timing
-    assert slpa_job.status() in {'pending', 'done', 'cancelled'}
+    async_db.task('001')
+
+    #slpa_job = async_pregel.job(task_id)
+    #time.sleep(50) # Wait time for better SLPA execution, bad processor = bad timing
+    #assert slpa_job.status() in {'pending', 'done', 'cancelled'}
     
     
-    while slpa_job.status() != 'done':
-        time.sleep(10)
+    #while slpa_job.status() != 'done':
+    #    time.sleep(10)
         
-    print("Job id: " + slpa_job.id)
+    #print("Job id: " + slpa_job.id)
 
     
 

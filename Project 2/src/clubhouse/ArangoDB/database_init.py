@@ -1,10 +1,10 @@
 from arango import ArangoClient
 
 def initialization():
-    client = ArangoClient(hosts = 'http://127.0.0.1:8529')
+    client = ArangoClient(hosts = 'http://localhost:8000/')
     
     # Connect to "_Twitch" Database as root user. Returns an API wrapper
-    clubhouse_db = client.db('Clubhouse', username='root', password = 'bigdata') #TOTALLY UNSAFE API AUTH
+    clubhouse_db = client.db('Clubhouse', username='root', password = '') #TOTALLY UNSAFE API AUTH
     
     # Create a new collection named "userCollection" if it does not exist.
 	# This returns an API wrapper for "userCollection" collection.

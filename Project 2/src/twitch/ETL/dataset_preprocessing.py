@@ -11,7 +11,7 @@ def true_false_setter(columns):
     else:
         return 1
 
-def features_preprocessing():
+def arango_features_preprocessing():
     
     dataset = pd.read_csv("data/twitch/large_twitch_features.csv")
     print(dataset.head())
@@ -26,7 +26,7 @@ def features_preprocessing():
     dataset.to_json('data/twitch/large_twitch_features_processed.json', orient='records', lines=True)
 
     
-def edge_preprocessing():
+def arango_edge_preprocessing():
     
     dataset = pd.read_csv("data/twitch/large_twitch_edges.csv")
     print(dataset.head())
@@ -49,8 +49,8 @@ def edge_preprocessing():
 def preprocessing_pipeline():
     
     start_time = time.time()
-    features_preprocessing()
-    edge_preprocessing()
+    arango_features_preprocessing()
+    arango_edge_preprocessing()
     print("--- Dataset preprocessed in %s seconds ---" % (time.time() - start_time))
     
 
