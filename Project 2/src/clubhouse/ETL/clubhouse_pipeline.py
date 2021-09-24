@@ -24,7 +24,7 @@ def track(func):
 
 @track
 def pipeline():
-    loading_pipeline()
+    #loading_pipeline()
     preprocessing_pipeline()
 
 if __name__ == '__main__':

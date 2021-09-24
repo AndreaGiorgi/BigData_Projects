@@ -42,7 +42,8 @@ def users_preprocessing():
         # Same reasoning with "invited_by_club", but if not invited by a club the user was invited by another user so we can set it
         # to 0 if NaN
 
-    dataset['invited_by_club'] = dataset['invited_by_club'].fillna("No Club")
+    dataset['invited_by_club'] = dataset['invited_by_club'].fillna("-1")
+
 
         # For further analysis support new features are going to be created.
 
@@ -55,7 +56,7 @@ def users_preprocessing():
 
         # Add invite count to original dataset, useful for graph data managment
     dataset = dataset.merge(invt_df, how='left', on='user_id')
-    dataset['invite_count'] = dataset['invite_count'].fillna(0)
+    dataset['invite_count'] = dataset['invite_count'].fillna(0).astype('int')
     
 
     # Remove useless columns
@@ -65,13 +66,22 @@ def users_preprocessing():
     print(dataset.info())
     print(dataset.head())
     
+    dataset = dataset.rename(columns={'user_id': '_key'})
+    dataset['invited_by_user_profile'] = dataset['invited_by_user_profile'].astype(int)
+    dataset['_key'] = 'userId_' + dataset['_key'].astype(str)
+    dataset['invited_by_user_profile'] = 'userId_' + dataset['invited_by_user_profile'].astype(str)
+  
+
+    
     edges_users_dataset = pd.DataFrame()
     edges_users_dataset['_from'] = dataset['invited_by_user_profile']
-    edges_users_dataset['_to'] = dataset['user_id']
+    edges_users_dataset['_to'] = dataset['_key']
     
     edges_clubs_dataset = pd.DataFrame()
+    dataset['invited_by_club'] = dataset['invited_by_club'].astype(int)
+    dataset['invited_by_club'] = 'clubId_' + dataset['invited_by_club'].astype(str)
     edges_clubs_dataset['_from'] = dataset['invited_by_club']
-    edges_users_dataset['_to'] = dataset['user_id']
+    edges_clubs_dataset['_to'] = dataset['_key']
     
     dataset.to_csv('data/clubhouse/user_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/user_data_processed.json', orient='records', lines=True)
@@ -80,7 +90,7 @@ def users_preprocessing():
     return edges_clubs_dataset
 
 
-
+ 
 def clubs_preprocessing(edges_clubs_dataset):
     
     dataset = pd.read_csv("data/clubhouse/club_data.csv")
@@ -113,8 +123,13 @@ def clubs_preprocessing(edges_clubs_dataset):
     print(dataset.info())
     print(dataset.head())
     
-    merged_dataset = pd.merge(left = dataset, right= edges_clubs_dataset, left_on='club_id', right_on='invited_by')
-    edges_clubs_dataset['_from'] = merged_dataset['club_id']
+    dataset = dataset.rename(columns={'club_id': '_key'})
+    dataset['_key'] = 'club_Id' + dataset['_key'].astype(str)
+    
+    # merged_dataset = pd.merge(left = dataset, right= edges_clubs_dataset, left_on='_key', right_on='_from')
+    # print(merged_dataset.head())
+    # edges_clubs_dataset['_from'] = merged_dataset['_from']
+    # edges_clubs_dataset['_to'] = merged_dataset['_key']
     
     dataset.to_csv('data/clubhouse/club_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/club_data_processed.json', orient='records', lines=True)
@@ -125,12 +140,10 @@ def clubs_preprocessing(edges_clubs_dataset):
 def preprocessing_pipeline():
     
     start_time = time.time()
-    users_preprocessing()
-    clubs_preprocessing()
+    edges_clubs_dataset = users_preprocessing()
+    clubs_preprocessing(edges_clubs_dataset)
     print("--- Dataset preprocessed in %s seconds ---" % (time.time() - start_time))
     
 
 if __name__ == '__main__':
     preprocessing_pipeline()
-    
-    ##DA creare nuovo file json che connette le persone e i club

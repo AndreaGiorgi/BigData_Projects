@@ -31,3 +31,36 @@ def initialization():
     print(clubs.properties())
     print("\n-----------Statistics------------\n")
     print(clubs.statistics())
+    
+    if clubhouse_db.has_graph('ClubhouseGraph'):
+        graph = clubhouse_db.graph('ClubhouseGraph')
+    else:
+        graph = clubhouse_db.create_graph('ClubhouseGraph')
+    
+    if graph.has_edge_definition('usersEdgesCollection'):
+        edges = graph.edge_collection('usersEdgesCollection')
+    else:
+        print("Edge Collection created \n")
+        edges = graph.create_edge_definition(
+            edge_collection = 'usersEdgesCollection',
+            from_vertex_collections = ['userCollection'],
+            to_vertex_collections=['userCollection'])
+        
+    print("\n----------- Edges Properties------------\n")
+    print(edges.properties())
+    print("\n-----------Edges Statistics------------\n")
+    print(edges.statistics())
+    
+    if graph.has_edge_definition('clubsEdgesCollection'):
+        edges = graph.edge_collection('clubsEdgesCollection')
+    else:
+        print("Edge Collection created \n")
+        edges = graph.create_edge_definition(
+            edge_collection = 'clubsEdgesCollection',
+            from_vertex_collections = ['clubCollection'],
+            to_vertex_collections=['userCollection'])
+        
+    print("\n----------- Edges Properties------------\n")
+    print(edges.properties())
+    print("\n-----------Edges Statistics------------\n")
+    print(edges.statistics())

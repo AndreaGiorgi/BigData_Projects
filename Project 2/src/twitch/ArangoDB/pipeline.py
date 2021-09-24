@@ -25,7 +25,7 @@ def track(func):
 @track
 def databasePipeline():
     initialization()
-    detection()
+    #detection()
     
 if __name__ == '__main__':
     databasePipeline()  

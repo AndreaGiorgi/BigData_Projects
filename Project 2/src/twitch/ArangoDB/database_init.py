@@ -19,7 +19,7 @@ def initialization():
     else:
         print("Twitch Collection created \n")
         users = twitch_db.create_collection('twitchCollection')
-        
+    
     print("-----------Twitch Properties------------\n")
     print(users.properties())
     print("\n-----------Twitch Statistics------------\n")
