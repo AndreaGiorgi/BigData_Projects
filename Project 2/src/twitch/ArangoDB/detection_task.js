@@ -12,7 +12,7 @@ while (!["done", "canceled"].includes(pregel.status(handle_LP).state)) {
 
 print(pregel.status(handle_LP).state);
 
-var paramsSLPA = {maxGSS: 250, resultField: "SLPA", maxCommunities: '15'};
+var paramsSLPA = {maxGSS: 500, resultField: "SLPA", maxCommunities: '15'};
 var handle_SLPA = pregel.start("slpa", "smart_Twitch", paramsSLPA);
 
 var status = pregel.status(handle_SLPA);

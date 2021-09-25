@@ -5,9 +5,6 @@ import time
 from pandas.core.frame import DataFrame
 warnings.filterwarnings('ignore')
 
-    
-
-
 def arango_features_preprocessing():
     
     dataset = pd.read_csv("data/twitch/large_twitch_features.csv")

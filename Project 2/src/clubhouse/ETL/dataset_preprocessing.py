@@ -1,6 +1,8 @@
 import pandas as pd
 import warnings
 import time
+
+from pandas.core.frame import DataFrame
 warnings.filterwarnings('ignore')
 
 def true_false_setter(columns):
@@ -10,6 +12,16 @@ def true_false_setter(columns):
         return 0
     else:
         return 1
+
+
+def edge_preprocessing(dataset_users):
+    
+    dataset = pd.DataFrame()
+    dataset['_to'] = dataset_users['index'].astype(str) + ':' + dataset_users['user_id'].astype(str)
+    
+
+    dataset.to_json('data/clubhouse/edge_data_processed.json', orient='records', lines=True)
+
 
 def users_preprocessing():
 
@@ -58,39 +70,27 @@ def users_preprocessing():
     dataset = dataset.merge(invt_df, how='left', on='user_id')
     dataset['invite_count'] = dataset['invite_count'].fillna(0).astype('int')
     
-
     # Remove useless columns
-
+    
     dataset.drop(['photo_url', 'time_created'], axis=1, inplace=True)
-
-    print(dataset.info())
-    print(dataset.head())
-    
-    dataset = dataset.rename(columns={'user_id': '_key'})
-    dataset['invited_by_user_profile'] = dataset['invited_by_user_profile'].astype(int)
-    dataset['_key'] = 'userId_' + dataset['_key'].astype(str)
-    dataset['invited_by_user_profile'] = 'userId_' + dataset['invited_by_user_profile'].astype(str)
-  
-
-    
-    edges_users_dataset = pd.DataFrame()
-    edges_users_dataset['_from'] = dataset['invited_by_user_profile']
-    edges_users_dataset['_to'] = dataset['_key']
-    
-    edges_clubs_dataset = pd.DataFrame()
-    dataset['invited_by_club'] = dataset['invited_by_club'].astype(int)
-    dataset['invited_by_club'] = 'clubId_' + dataset['invited_by_club'].astype(str)
-    edges_clubs_dataset['_from'] = dataset['invited_by_club']
-    edges_clubs_dataset['_to'] = dataset['_key']
     
     dataset.to_csv('data/clubhouse/user_data_processed.csv', index = False, encoding = 'utf-8')
-    dataset.to_json('data/clubhouse/user_data_processed.json', orient='records', lines=True)
-    edges_users_dataset.to_json('data/clubhouse/user_edges_processed.json', orient='records', lines=True)
     
-    return edges_clubs_dataset
+    dataset['index'] = dataset.index
+    dataset['index'] = dataset['index'].astype(str)
+    dataset['_key'] = (dataset['index'].astype(int)).astype(str)
+    dataset['_key'] = dataset['_key'] + ':' + dataset['user_id'].astype(str)
+    dataset['invited_by_user_profile'] = (dataset['invited_by_user_profile'].astype(int)).astype(str)
+    
+    print(dataset.info())
+    print(dataset.head())
+
+    #edge_preprocessing(dataset)
+    
+    dataset.to_json('data/clubhouse/user_data_processed.json', orient='records', lines=True)
 
 
- 
+
 def clubs_preprocessing(edges_clubs_dataset):
     
     dataset = pd.read_csv("data/clubhouse/club_data.csv")
@@ -124,24 +124,20 @@ def clubs_preprocessing(edges_clubs_dataset):
     print(dataset.head())
     
     dataset = dataset.rename(columns={'club_id': '_key'})
-    dataset['_key'] = 'club_Id' + dataset['_key'].astype(str)
-    
-    # merged_dataset = pd.merge(left = dataset, right= edges_clubs_dataset, left_on='_key', right_on='_from')
-    # print(merged_dataset.head())
-    # edges_clubs_dataset['_from'] = merged_dataset['_from']
-    # edges_clubs_dataset['_to'] = merged_dataset['_key']
+    dataset['club_id'] = dataset['_key'].astype(str)
+    dataset['_key'] = dataset['_key'].astype(str) + ":ID"
     
     dataset.to_csv('data/clubhouse/club_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/club_data_processed.json', orient='records', lines=True)
-    edges_clubs_dataset.to_json('data/clubhouse/club_edges_processed.json', orient='records', lines=True)
+    #edges_clubs_dataset.to_json('data/clubhouse/club_edges_processed.json', orient='records', lines=True)
 
 
 
 def preprocessing_pipeline():
     
     start_time = time.time()
-    edges_clubs_dataset = users_preprocessing()
-    clubs_preprocessing(edges_clubs_dataset)
+    users_preprocessing()
+    #clubs_preprocessing(edges_clubs_dataset)
     print("--- Dataset preprocessed in %s seconds ---" % (time.time() - start_time))
     
 

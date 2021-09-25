@@ -1,5 +1,5 @@
 from database_init import initialization
-from database_task import detection
+import subprocess
 import time
 import psutil
 import os
@@ -22,10 +22,24 @@ def track(func):
         return result
     return wrapper
 
+def run(cmd):
+    completed = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
+    return completed
+
+def arangosh_detection_task():
+    detection_command  = "arangosh --server.endpoint tcp://localhost:8000 --server.database Twitch --javascript.execute detection_task.js"
+    detection_info = run(detection_command)
+    if detection_info.returncode != 0:
+        print("An error occured: %s", detection_info.stderr)
+    else:
+        print("Detection command executed successfully!")
+    
+    print("-------------------------")
+
 @track
 def databasePipeline():
     initialization()
-    #detection()
+    arangosh_detection_task()
     
 if __name__ == '__main__':
     databasePipeline()  

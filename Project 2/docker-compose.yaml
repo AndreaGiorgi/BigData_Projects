@@ -125,3 +125,19 @@ services:
           --cluster.agency-endpoint tcp://agency2:8529 
           --cluster.agency-endpoint tcp://agency3:8529  
           --database.directory /var/lib/arangodb3
+
+    db3:
+        image: arangodb/enterprise:3.8.1
+        environment:
+            - ARANGO_LICENSE_KEY=EVALUATION:125f16ada6047bd17eeeefa3f011070510b5fbd9d85122afdeca72c380e7ac83
+            - ARANGO_NO_AUTH=1
+        command: arangod 
+          --server.authentication=false 
+          --server.endpoint tcp://0.0.0.0:8529 
+          --cluster.my-address tcp://db3:8529 
+          --cluster.my-local-info db3 
+          --cluster.my-role PRIMARY 
+          --cluster.agency-endpoint tcp://agency:8529 
+          --cluster.agency-endpoint tcp://agency2:8529 
+          --cluster.agency-endpoint tcp://agency3:8529  
+          --database.directory /var/lib/arangodb3
