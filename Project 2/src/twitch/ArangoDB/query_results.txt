@@ -1,0 +1,23 @@
+----- Twitch Pregel Script Start -----
+
+arangosh --server.endpoint tcp://localhost:8000 --server.database Twitch --javascript.execute detectit.execute detection_task.js
+
+----- Twitch Pregel LP Results --------
+
+FOR doc IN smart_users
+    COLLECT community = doc.LP INTO usersByCommunity
+    SORT community DESC
+    RETURN {
+        community,
+        users: usersByCommunity[*].doc._key
+    }
+
+----- Twitch Pregel SLPA Results --------
+
+FOR doc IN smart_users
+    COLLECT community = doc.SLPA INTO usersByCommunity
+    SORT community DESC
+    RETURN {
+        community,
+        users: usersByCommunity[*].doc._key
+    }

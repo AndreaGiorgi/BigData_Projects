@@ -14,13 +14,28 @@ def true_false_setter(columns):
         return 1
 
 
-def edge_preprocessing(dataset_users):
+def edge_preprocessing():
     
-    dataset = pd.DataFrame()
-    dataset['_to'] = dataset_users['index'].astype(str) + ':' + dataset_users['user_id'].astype(str)
+    df_1 = DataFrame()
+    df_2 = DataFrame()
     
-
-    dataset.to_json('data/clubhouse/edge_data_processed.json', orient='records', lines=True)
+    df_1 = pd.read_csv('data/clubhouse/user_data_processed.csv')
+    df_2 = pd.read_csv('data/clubhouse/user_data_processed.csv')
+    
+    df_1 = df_1.drop(labels=['name', 'username', 'twitter', 'instagram', 'num_followers', 'num_following', 'date_created', 'invite_count'], axis=1)
+    df_2 = df_2.drop(labels=['name', 'username', 'twitter', 'instagram', 'num_followers', 'num_following', 'date_created', 'invite_count'], axis=1)
+    print(df_1.head())
+    
+    df_merge = DataFrame()
+    
+    df_merge = pd.merge(df_1, df_2, left_on=['user_id'], right_on = ['invited_by_user_profile'], how='inner')
+    print(df_merge.head())
+    
+    edges = DataFrame()
+    edges['_from'] = df_merge['_key_x']
+    edges['_to'] =df_merge['_key_y']
+    
+    edges.to_json('data/clubhouse/edge_data_processed.json', orient='records', lines=True)
 
 
 def users_preprocessing():
@@ -51,12 +66,6 @@ def users_preprocessing():
 
     dataset['invited_by_user_profile'] = dataset['invited_by_user_profile'].fillna(0)
 
-        # Same reasoning with "invited_by_club", but if not invited by a club the user was invited by another user so we can set it
-        # to 0 if NaN
-
-    dataset['invited_by_club'] = dataset['invited_by_club'].fillna("-1")
-
-
         # For further analysis support new features are going to be created.
 
         # Shows the date of creation
@@ -72,9 +81,7 @@ def users_preprocessing():
     
     # Remove useless columns
     
-    dataset.drop(['photo_url', 'time_created'], axis=1, inplace=True)
-    
-    dataset.to_csv('data/clubhouse/user_data_processed.csv', index = False, encoding = 'utf-8')
+    dataset.drop(['photo_url', 'time_created', 'invited_by_club'], axis=1, inplace=True)
     
     dataset['index'] = dataset.index
     dataset['index'] = dataset['index'].astype(str)
@@ -85,59 +92,16 @@ def users_preprocessing():
     print(dataset.info())
     print(dataset.head())
 
-    #edge_preprocessing(dataset)
     
+    dataset.to_csv('data/clubhouse/user_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/user_data_processed.json', orient='records', lines=True)
-
-
-
-def clubs_preprocessing(edges_clubs_dataset):
-    
-    dataset = pd.read_csv("data/clubhouse/club_data.csv")
-    print(dataset.info())
-    
-    # Remove useless columns
-    
-    dataset.drop(['photo_url', 'rules', 'description', 'url'], axis=1, inplace=True)
-    
-    print(dataset.info())
-    print(dataset.head())
-    
-    # Check duplicates
-
-    print('Unique club_id: {}'.format(dataset['club_id'].nunique()))
-    print('Unique club name: {}'.format(dataset['name'].nunique()))
-    print(dataset[dataset.duplicated('name', keep=False)])
-    
-    dataset.drop_duplicates(subset=['name'], keep='last', inplace=True)
-    # Check NaN values
-
-    print(dataset.isna().sum())
-
-    # Change club features to 1/0 encoding for further analysis
-
-    to_change = ['enable_private', 'is_follow_allowed', 'is_membership_private', 'is_community']
-    for i in to_change:
-        dataset[i] = dataset[i].apply(true_false_setter).astype('int')
-        
-    print(dataset.info())
-    print(dataset.head())
-    
-    dataset = dataset.rename(columns={'club_id': '_key'})
-    dataset['club_id'] = dataset['_key'].astype(str)
-    dataset['_key'] = dataset['_key'].astype(str) + ":ID"
-    
-    dataset.to_csv('data/clubhouse/club_data_processed.csv', index = False, encoding = 'utf-8')
-    dataset.to_json('data/clubhouse/club_data_processed.json', orient='records', lines=True)
-    #edges_clubs_dataset.to_json('data/clubhouse/club_edges_processed.json', orient='records', lines=True)
-
 
 
 def preprocessing_pipeline():
     
     start_time = time.time()
-    users_preprocessing()
-    #clubs_preprocessing(edges_clubs_dataset)
+   # users_preprocessing()
+    edge_preprocessing()
     print("--- Dataset preprocessed in %s seconds ---" % (time.time() - start_time))
     
 

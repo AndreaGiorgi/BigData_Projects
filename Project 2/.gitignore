@@ -150,7 +150,6 @@ dmypy.json
 .pyre/
 
 # Project specific ignore
-*.txt
 *.db
 *.csv
 *.json

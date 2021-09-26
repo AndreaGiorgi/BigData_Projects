@@ -1,0 +1,23 @@
+----- Clubhouse Pregel Script Start -----
+
+arangosh --server.endpoint tcp://localhost:8000 --server.database Clubhouse --javascript.execute detectit.execute detection_task.js
+
+----- Clubhouse Pregel LP Results --------
+
+FOR doc IN smart_users
+    COLLECT community = doc.LP INTO usersByCommunity
+    SORT community DESC
+    RETURN {
+        community,
+        users: usersByCommunity[*].doc._key
+    }
+
+----- Clubhouse Pregel SLPA Results --------
+
+FOR doc IN smart_users
+    COLLECT community = doc.SLPA INTO usersByCommunity
+    SORT community DESC
+    RETURN {
+        community,
+        users: usersByCommunity[*].doc._key
+    }
