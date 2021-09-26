@@ -12,6 +12,9 @@ FOR doc IN smart_users
         users: usersByCommunity[*].doc._key
     }
 
+FOR doc IN smart_users
+  RETURN DISTINCT doc.LP
+
 ----- Twitch Pregel SLPA Results --------
 
 FOR doc IN smart_users
@@ -21,3 +24,6 @@ FOR doc IN smart_users
         community,
         users: usersByCommunity[*].doc._key
     }
+
+FOR doc IN smart_users
+  RETURN DISTINCT doc.SLPA

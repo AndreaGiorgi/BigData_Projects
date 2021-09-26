@@ -13,7 +13,6 @@ def true_false_setter(columns):
     else:
         return 1
 
-
 def edge_preprocessing():
     
     df_1 = DataFrame()
@@ -92,7 +91,6 @@ def users_preprocessing():
     print(dataset.info())
     print(dataset.head())
 
-    
     dataset.to_csv('data/clubhouse/user_data_processed.csv', index = False, encoding = 'utf-8')
     dataset.to_json('data/clubhouse/user_data_processed.json', orient='records', lines=True)
 
@@ -100,7 +98,7 @@ def users_preprocessing():
 def preprocessing_pipeline():
     
     start_time = time.time()
-   # users_preprocessing()
+    users_preprocessing()
     edge_preprocessing()
     print("--- Dataset preprocessed in %s seconds ---" % (time.time() - start_time))
     

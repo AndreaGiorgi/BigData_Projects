@@ -4,7 +4,7 @@ arangosh --server.endpoint tcp://localhost:8000 --server.database Clubhouse --ja
 
 ----- Clubhouse Pregel LP Results --------
 
-FOR doc IN smart_users
+FOR doc IN smart_userCollection
     COLLECT community = doc.LP INTO usersByCommunity
     SORT community DESC
     RETURN {
@@ -12,12 +12,18 @@ FOR doc IN smart_users
         users: usersByCommunity[*].doc._key
     }
 
+FOR doc IN smart_userCollection
+  RETURN DISTINCT doc.LP
+
 ----- Clubhouse Pregel SLPA Results --------
 
-FOR doc IN smart_users
+FOR doc IN smart_userCollection
     COLLECT community = doc.SLPA INTO usersByCommunity
     SORT community DESC
     RETURN {
         community,
         users: usersByCommunity[*].doc._key
     }
+
+FOR doc IN smart_userCollection
+  RETURN DISTINCT doc.LP
