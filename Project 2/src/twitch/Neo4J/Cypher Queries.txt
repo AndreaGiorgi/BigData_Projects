@@ -1,0 +1,105 @@
+Caricamento nodi
+
+LOAD CSV WITH HEADERS FROM 'file:///large_twitch_features.csv' AS row
+WITH row WHERE row.numeric_id IS NOT NULL
+CREATE (u:User {numeric_id: row.numeric_id, life_time: row.life_time, dead_account: row.dead_account, updated_at: row.updated_at, mature: row.mature, created_at: row.created_at, language: row.language, affiliate:row.affiliate, views: row.views})
+
+Added 168114 labels, created 168114 nodes, set 1513026 properties, completed after 2272 ms.
+
+------------------------------------------------------------------------------------------------------
+
+Creazione indice sull'id
+CREATE INDEX ON :User(numeric_id)
+
+------------------------------------------------------------------------------------------------------
+
+
+caricamento relazioni
+
+
+:auto USING PERIODIC COMMIT 500
+LOAD CSV WITH HEADERS FROM 'file:///large_twitch_edges.csv' AS row
+MATCH (u1:User {numeric_id: row.numeric_id_1}), (u2:User {numeric_id: row.numeric_id_2})
+CREATE (u1)-[rel: FOLLOWS]->(u2);
+
+Created 6797557 relationships, completed after 328188 ms.
+
+------------------------------------------------------------------------------------------------------
+
+creazione del grafo
+
+CALL gds.graph.create.cypher(
+    'twitch-graph',
+    'MATCH (u:User) RETURN id(u) AS id',
+    'MATCH (u1:User)-[:FOLLOWS]->(u2:User) RETURN id(u1) AS source, id(u2) AS target'
+)
+YIELD graphName, nodeCount, relationshipCount, createMillis;
+
+
+-----------------------------------------------------------------------------------------------------
+stima memoria richieta
+
+CALL gds.labelPropagation.write.estimate('twitch-graph', { writeProperty: 'community' })
+YIELD nodeCount, relationshipCount, bytesMin, bytesMax, requiredMemory
+
+
+nodeCount	relationshipCount	bytesMin	bytesMax	requiredMemory
+168114	6797557	1346976	18123680	"[1315 KiB ... 17 MiB]"
+
+
+-----------------------------------------------------------------------------------------------------
+
+chiama metodo write con max iteration = 5, 10, 30, 50, 100
+
+CALL gds.labelPropagation.write('twitch-graph', { writeProperty: 'community', maxIterations: 30 })
+YIELD communityCount, ranIterations, didConverge
+
+5
+communityCount	ranIterations	didConverge
+44610		5		false
+Started streaming 1 records after 2 ms and completed after 10674 ms.
+
+
+10
+communityCount	ranIterations	didConverge
+44596		10		false
+Started streaming 1 records after 1 ms and completed after 20516 ms.
+
+
+30, 50, 100
+communityCount	ranIterations	didConverge
+44596		23		true
+Started streaming 1 records in less than 1 ms and completed after 60813 ms.
+
+---------------------------------------------------------------------------------------------------
+
+CALL gds.louvain.stats('twitch-graph', { maxIterations: 5 })
+YIELD communityCount
+
+communityCount
+18122
+Started streaming 1 records in less than 1 ms and completed after 12333 ms.
+
+
+10 iterazioni default
+
+communityCount
+18560
+Started streaming 1 records after 1 ms and completed after 14479 ms.
+
+
+20
+communityCount
+19911
+Started streaming 1 records after 1 ms and completed after 16188 ms.
+
+--------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+

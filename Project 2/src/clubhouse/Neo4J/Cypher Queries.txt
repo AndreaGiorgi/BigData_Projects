@@ -1,0 +1,89 @@
+caricamento nodi
+
+:auto USING PERIODIC COMMIT 50000
+LOAD CSV WITH HEADERS FROM 'file:///user_data1.csv' AS row
+WITH row WHERE row.user_id IS NOT NULL
+CREATE (u:User {user_id: row.user_id, name: row.name, username: row.username, 
+num_followers: row.num_followers, num_following: row.num_following, 
+invited_by_user_profile: row.invited_by_user_profile, invited_by_club: row.invited_by_club})
+
+Added 9794022 labels, created 9794022 nodes, set 58801854 properties, completed after 308619 ms.
+
+---------------------------------------------------------------------------------------------
+creazione indici
+CREATE INDEX ON :User(user_id)
+CREATE INDEX ON :User(invited_by_user_profile)
+
+
+10-20 ms
+---------------------------------------------------------------------------------------------
+caricamento ennuple
+
+MATCH (u1:User), (u2:User)
+WHERE u1.invited_by_user_profile = u2.user_id
+CREATE (u1)-[rel: INVITED_BY]->(u2);
+
+Created 4279523 relationships, completed after 974586 ms.
+
+---------------------------------------------------------------------------------------------
+creazione grafo
+
+CALL gds.graph.create.cypher(
+    'clubhouse-graph',
+    'MATCH (u:User) RETURN id(u) AS id',
+    'MATCH (u1:User)-[:INVITED_BY]->(u2:User) RETURN id(u1) AS source, id(u2) AS target'
+)
+YIELD graphName, nodeCount, relationshipCount, createMillis;
+
+---------------------------------------------------------------------------------------------
+
+
+chiama metodo write con max iteration = 10, 30, 50, 100
+
+CALL gds.labelPropagation.write('clubhouse-graph', { writeProperty: 'community', maxIterations: 10 })
+YIELD communityCount, ranIterations, didConverge
+
+10
+communityCount	ranIterations	didConverge
+8541256		10		false
+Started streaming 1 records after 2 ms and completed after 222652 ms.
+
+
+30
+communityCount	ranIterations	didConverge
+6789624		30		false
+Started streaming 1 records after 1 ms and completed after 487215 ms.
+
+
+50
+communityCount	ranIterations	didConverge
+5867112		50		false
+Started streaming 1 records in less than 1 ms and completed after 721402 ms.
+
+100
+communityCount	ranIterations	didConverge
+5214655		74		true
+Started streaming 1 records in less than 1 ms and completed after 970517 ms.
+
+
+---------------------------------------------------------------------------------------------------
+
+CALL gds.louvain.stats('clubhouse-graph', { maxIterations: 10 })
+YIELD communityCount
+
+communityCount
+4254781
+Started streaming 1 records in less than 1 ms and completed after 52333 ms.
+
+
+30 iterazioni default
+
+communityCount
+4747124
+Started streaming 1 records after 1 ms and completed after 64865 ms.
+
+
+50
+communityCount
+4845945
+Started streaming 1 records after 1 ms and completed after 71564 ms.
