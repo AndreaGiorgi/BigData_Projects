@@ -1,0 +1,93 @@
+ICIJ QUERIES
+
+
+MATCH p=(n:Intermediary)-->(n2) RETURN p LIMIT 150
+
+
+--------------------------------------------------------------------------
+
+MATCH (e:Entity)
+WITH e.jurisdiction_description AS jurisdiction, COUNT(*) AS count
+WHERE count > 20
+RETURN *
+ORDER BY count DESC
+
+count	jurisdiction
+83906	"Malta"
+70602	"Saint Kitts and Nevis"
+49050	"Aruba"
+40845	"Barbados"
+17852	"Bahamas"
+9450	"Bermuda"
+8755	"Cayman Islands"
+2284	"British Virgin Islands"
+
+-------------------------------------------------------------------------
+quanti funzionari di ciascuno stato sono sotto una determinata giurisdizione
+
+
+MATCH (a:Address)--(o:Officer)--(e:Entity)
+WITH a.countries AS officer_country, e.jurisdiction_description AS juris,
+COUNT(*) AS num
+RETURN * ORDER BY num DESC
+
+juris	num	officer_country
+"Bermuda"	9431	"Bermuda"
+"Cayman Islands"	5683	"Cayman Islands"
+"Isle of Man"	3261	"Isle of Man"
+"Bermuda"	3216	"United States"
+"Jersey"	862	"Jersey"
+"Bermuda"	570	"Cayman Islands"
+"Bermuda"	504	"Hong Kong"
+"Bermuda"	494	"United Kingdom"
+"Isle of Man"	461	"Israel"
+"Cayman Islands"	374	"British Virgin Islands"
+
+-------------------------------------------------------------------------------
+MATCH p=(:Intermediary {name: "Appleby Management (Bermuda) Ltd."})-->(:Entity)RETURN p LIMIT 100
+
+grafico 100 entità per cui appleby funge da intermediario.
+
+-------------------------------------------------------------------------------
+nazioni con maggior numero di funzionari che lavorano per società offshore
+
+MATCH (a:Address)--(n:Officer) 
+WITH a.countries AS officer_country,
+COUNT(*) AS num
+RETURN * ORDER BY num DESC
+
+num	officer_country
+916	"United States"
+357	"Bermuda"
+284	"United Kingdom"
+254	"Isle of Man"
+159	"Hong Kong"
+151	"Cayman Islands"
+99	"Saudi Arabia"
+79	"United Arab Emirates"
+67	"Switzerland"
+61	"China"
+
+-------------------------------------------------------------------------------
+Grafo relazioni singolo funzionario
+
+MATCH p = (:Officer {name: 'RADOMIR VUKCEVIC'})--()
+RETURN p
+
+------------------------------------------------------------------------------
+calcolo indirizzo che ospita più entità e funzionari
+
+MATCH()-->(a:Address)
+WITH a,count(*) as rel_cnt
+WHERE rel_cnt > 1
+RETURN a limit 1
+
+match p=()-->(:Address {address: "Kings Court"})
+return p
+
+entità indirizzate a Kings Court
+-----------------------------------------------------------------------------
+
+
+
+
